@@ -134,5 +134,11 @@ PlasmoidItem {
     onSortingChanged: refresh()
     onRulesChanged: refresh()
     onConfigurationChanged: saveTimer.start()
-	Component.onCompleted: JS.init()
+	Component.onCompleted: {
+        JS.init();
+        if (!JS.haveLock()) {
+            // Secondary instance – don’t schedule checks.
+            searchTimer.stop();
+        }
+    }
 }

@@ -5,10 +5,18 @@
 
 const scriptDir = "$HOME/.local/share/plasma/plasmoids/com.github.exequtic.apdatifier/contents/tools/sh/"
 const configDir = "$HOME/.config/apdatifier/"
+const lockFile = `${configDir}apdatifier.lock`;
 const configFile = configDir + "config.conf"
 const cacheFile = configDir + "updates.json"
 const rulesFile = configDir + "rules.json"
 const newsFile = configDir + "news.json"
+
+function haveLock() {
+    // returns true if we acquired the lock
+    const touch = `[ ! -e "${lockFile}" ] && echo $$ > "${lockFile}"`;
+    const ok = `[ "$(cat "${lockFile}")" = "$$" ]`;
+    return plasmoid.external(execute(`${touch}; ${ok}`)) === "0";
+}
 
 function execute(command, callback, stoppable) {
     const component = Qt.createComponent("../ui/components/Shell.qml")
