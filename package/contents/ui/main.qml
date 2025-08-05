@@ -131,10 +131,12 @@ PlasmoidItem {
         Component.onCompleted: {
             addPath(JS.cacheFile);
             addPath(JS.newsFile);
+            addPath(JS.configFile);
         }
         onFileChanged: path => {
             if (path === JS.cacheFile)      { JS.loadCache();  JS.refreshListModel(); }
             if (path === JS.newsFile)       { JS.loadNews();   JS.updateActiveNews(); }
+            if (path === JS.configFile)     { JS.reloadConfig(); }
         }
     }
 

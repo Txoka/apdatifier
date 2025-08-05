@@ -18,6 +18,35 @@ function haveLock() {
     return plasmoid.external(execute(`${touch}; ${ok}`)) === "0";
 }
 
+function reloadConfig() {
+    const convert = v => !isNaN(parseFloat(v)) ? parseFloat(v)
+                       : (v === "true" || v === "false") ? v === "true"
+                       : v;
+
+    execute(readFile(configFile), (cmd, out, err, code) => {
+        if (Error(code, err) || !out) return;
+
+        out.trim().split("\n").forEach(line => {
+            const m = line.match(/(\w+)="([^"]*)"/);
+            if (!m) return;
+            const [ , key, raw ] = m;
+            const val = convert(raw);
+            if (plasmoid.configuration[key] !== val) {
+                /*  Updating plasmoid.configuration also refreshes the
+                 *  Config UI automatically (it emits the same signals
+                 *  the dialog listens to).  */
+                plasmoid.configuration[key] = val;
+            }
+        });
+
+        /* local mirrors */
+        root.cfg   = plasmoid.configuration;
+        root.time  = cfg.time;
+        root.interval = cfg.interval;
+        root.sorting  = cfg.sorting;
+    });
+}
+
 function execute(command, callback, stoppable) {
     const component = Qt.createComponent("../ui/components/Shell.qml")
     if (component.status === Component.Ready) {
