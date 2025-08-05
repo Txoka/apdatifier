@@ -6,6 +6,8 @@
 import QtQuick
 import QtQuick.Layouts
 
+import QtCore 6.5 as QtCore
+
 import org.kde.plasma.plasmoid
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.core as PlasmaCore
@@ -122,6 +124,18 @@ PlasmoidItem {
         id: initTimer
         running: true
         interval: 50
+    }
+
+    QtCore.QFileSystemWatcher {
+        id: fs
+        Component.onCompleted: {
+            addPath(JS.cacheFile);
+            addPath(JS.newsFile);
+        }
+        onFileChanged: path => {
+            if (path === JS.cacheFile)      { JS.loadCache();  JS.refreshListModel(); }
+            if (path === JS.newsFile)       { JS.loadNews();   JS.updateActiveNews(); }
+        }
     }
 
     function refresh() {
